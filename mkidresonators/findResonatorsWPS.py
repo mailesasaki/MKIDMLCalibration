@@ -59,7 +59,11 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
-        pool = multiprocessing.Pool(processes=N_CPU)
+        #pool = multiprocessing.Pool(processes=N_CPU)
+        from multiprocessing import set_start_method
+        set_start_method("spawn")
+        pool = multiprocessing.get_context('spawn').Pool(processes=N_CPU)
+
         freqSweepChunk = copy.copy(freqSweep)
 
     for attenInd in range(len(attens)):
@@ -92,13 +96,12 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             freqWinSize=mlDict['freqWinSize'], attenWinSize=1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], 
                             useIQV=mlDict['useIQV'], useVectIQV=mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
-
-                #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
-                def main():
-                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
                 
-                if __name__ == '__main__':
-                    main()
+                #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
+                
+                with multiprocessing.get_context('spawn').Pool(processes=N_CPU) as pool:
+                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                pool.close()
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
@@ -109,10 +112,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         print('atten:', attens[attenInd])
         print(' took', time.time() - tstart, 'seconds')
 
-    if N_CPU > 1:
-        pool.close()
+    #if N_CPU > 1:
+     #   pool.close()
 
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
     
 
     return wpsImage, freqs, attens
@@ -166,6 +169,7 @@ def findResonators(wpsmap, freqs, attens, prominenceThresh=0.85, peakThresh=0.97
     """
 
     minPeakDist /= np.diff(freqs)[0]
+    minPeakDist = int(minPeakDist)
     if attenGrad > 0:
         attenBias = np.linspace(0, -(len(attens)-1)*attenGrad, len(attens))
         wpsmap = (wpsmap.T + attenBias).T
@@ -329,10 +333,16 @@ if __name__=='__main__':
     parser.add_argument('-m', '--use-mag', action='store_true', help='Select N_RES resonators above peakThresh with largest loop size')
     args = parser.parse_args()
 
+    if os.path.isfile(args.inferenceData) == False:
+        raise Exception('Inference Data does not exist')
+        
+    if os.path.isdir(args.model) == False:
+        raise Exception('Model does not exist')
+        
     sweepFiles, paramDicts = sd.getSweepFilesFromPat(args.inferenceData)
     print(sweepFiles)
     print(paramDicts)
-
+    
     if args.metadata is None:
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), 
                 os.path.basename(args.inferenceData).split('.')[0] + '_metadata.txt')
