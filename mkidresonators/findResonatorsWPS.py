@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 from functools import partial
 import multiprocessing
+#from multiprocessing import set_start_method
 import os, sys, glob
 import time
 import copy
@@ -24,7 +25,7 @@ from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 1
+N_CPU = 10
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
@@ -51,18 +52,13 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         nColors += 2
 
     chunkSize = 5000#8000*N_CPU
-    #original: 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
     subChunkSize = 200
-    #original: 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
-        #pool = multiprocessing.Pool(processes=N_CPU)
-        from multiprocessing import set_start_method
-        set_start_method("spawn")
-        pool = multiprocessing.get_context('spawn').Pool(processes=N_CPU)
+        pool = multiprocessing.Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
 
@@ -96,14 +92,12 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             freqWinSize=mlDict['freqWinSize'], attenWinSize=1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], 
                             useIQV=mlDict['useIQV'], useVectIQV=mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
-                
+
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
-                
-                with multiprocessing.get_context('spawn').Pool(processes=N_CPU) as pool:
-                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
-                pool.close()
+                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)//N_CPU)
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
+            
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
             #       feed_dict={x_input: imageList[:nFreqsInChunk], keep_prob: 1, is_training: False})
     
@@ -112,15 +106,13 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         print('atten:', attens[attenInd])
         print(' took', time.time() - tstart, 'seconds')
 
-    #if N_CPU > 1:
-     #   pool.close()
+    if N_CPU > 1:
+        pool.close()
 
     tf.compat.v1.reset_default_graph()
     
-
     return wpsImage, freqs, attens
-
-
+                                                      
 def makeImage(centerFreq, freqSweep, atten, freqWinSize, attenWinSize, useIQV, useVectIQV, normalizeBeforeCenter):
     image, _, _, = mlt.makeWPSImage(freqSweep, centerFreq, atten, freqWinSize, attenWinSize, useIQV, useVectIQV,
             normalizeBeforeCenter=normalizeBeforeCenter) 
@@ -156,7 +148,6 @@ def findResonators(wpsmap, freqs, attens, prominenceThresh=0.85, peakThresh=0.97
             Each point in image (nAttens, nFreq) is NN output for atten/freq image centered at 
             that point. Color channel contains classifier classes, with optional resMag channel
             containing the size of the loop centered at that point.
-
     Returns
     -------
         resFreqs
@@ -165,7 +156,6 @@ def findResonators(wpsmap, freqs, attens, prominenceThresh=0.85, peakThresh=0.97
             list of powers corresponding to resFreqs
         scores
             list of ML scores corresponding to resFreqs
-
     """
 
     minPeakDist /= np.diff(freqs)[0]
@@ -316,7 +306,6 @@ def runFullInference(inferenceData, model, peakThresh, prominenceThresh,
 
     return resFreqs, resAttens, scores
 
-
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='WPS ML Inference Script')
     parser.add_argument('model', help='Directory containing ML model')
@@ -349,8 +338,7 @@ if __name__=='__main__':
 
     elif not os.path.isabs(args.metadata):
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), args.metadata)
-
-
+    
     for (sweepFile, paramDict) in zip(sweepFiles, paramDicts):
         resFreqs, resAttens, scores = runFullInference(sweepFile, args.model, args.peak_thresh, 
                     args.prominence_thresh, args.n_res, args.atten_bias, args.save_wpsmap, args.remake_wpsmap)
