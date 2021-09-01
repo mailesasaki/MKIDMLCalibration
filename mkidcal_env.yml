@@ -1,17 +1,19 @@
 name: mkidcal
 channels:
-  - conda-forge
   - defaults
+  - http://ssb.stsci.edu/astroconda
+  - conda-forge
 dependencies:
-  - ipython
-  - numpy
-  - scipy
-  - tensorflow
-  - keras
-  - matplotlib
-  - ruamel.yaml
-  - multiprocessing-logging
   - parse
-  - shutil
+  - matplotlib
+  - multiprocessing-logging
+  - ruamel.yaml
+  - tensorflow
+  - ipython
+  - scipy
+  - keras
+  - numpy
   - scikit-image
-  - astropy
+  - cudatoolkit
+  - cudnn
+prefix: /opt/anaconda3/envs/mkidcal
