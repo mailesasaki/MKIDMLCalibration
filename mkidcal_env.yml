@@ -16,4 +16,8 @@ dependencies:
   - scikit-image
   - cudatoolkit
   - cudnn
+  - pip:
+    - astropy
+    - shutil
+    - tensorflow-gpu
 prefix: /opt/anaconda3/envs/mkidcal
