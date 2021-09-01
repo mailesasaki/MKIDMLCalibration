@@ -19,5 +19,4 @@ dependencies:
   - pip:
     - astropy
     - shutil
-    - tensorflow-gpu
 prefix: /opt/anaconda3/envs/mkidcal
