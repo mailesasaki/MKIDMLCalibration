@@ -14,8 +14,6 @@ dependencies:
   - keras
   - numpy
   - scikit-image
-  - cudatoolkit
-  - cudnn
   - pip:
     - astropy
     - shutil
