@@ -19,9 +19,9 @@ import logging
 import matplotlib.pyplot as plt
 import skimage.feature as skf
 import mkidcore.sweepdata as sd
-import mkidresonatorkal.tools as mlt
+import mkidmlcalibration.tools as mlt
 from mkidcore.corelog import getLogger
-from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
+from mkidmlcalibration.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
