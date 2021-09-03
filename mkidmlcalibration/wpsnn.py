@@ -24,10 +24,11 @@ import shutil
 
 class WPSNeuralNet(object):
     
-    def __init__(self, mlDict, model_name, mlDict_file):
+    def __init__(self, mlDict, model_name, mlDict_file, plot_destination):
         self.mlDict = mlDict
         self.model_name = model_name
         self.mlDict_file = mlDict_file
+        self.plot_destination = plot_destination
         self.nClasses = N_CLASSES
         self.nColors = 2
         if mlDict['useIQV']:
@@ -251,7 +252,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/home/msasaki/training_loss3.png')
+        plt.savefig(self.plot_destination+'/training_loss.png')
         
         plt.close()
 
@@ -260,7 +261,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/home/msasaki/training_accuracy3.png')
+        plt.savefig(self.plot_destination+'/training_accuracy.png')
 
         model.save(self.model_name)
 
