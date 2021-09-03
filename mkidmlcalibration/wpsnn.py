@@ -3,10 +3,8 @@ Neural net for resonator identification + tuning. Operates in a sliding window f
 on freqency x attenuation sweep data set. Every point in freq x atten space gets a score 
 in one of four classes: (good res, saturated res, underpowered res, no res). Local maxima
 in "good res" class are flagged and added to output frequency list. 
-
 The code here (neural net class) only generates the ouput (scored) image; flagging maxima 
 and generating freq list are done in findResonatorsWPS.py.
-
 """
 
 N_CLASSES = 4 #good, saturated, underpowered, bad/no res
@@ -253,7 +251,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/home/msasaki/training_loss2.png')
+        plt.savefig('/home/msasaki/training_loss3.png')
         
         plt.close()
 
@@ -262,11 +260,11 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/home/msasaki/training_accuracy2.png')
+        plt.savefig('/home/msasaki/training_accuracy3.png')
 
-        model.save(model_name)
+        model.save(self.model_name)
 
-        return shutil.copyfile(mlDict_file, model_name+'mlDict_new.cfg')        
+        return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict_new.cfg')        
         
         tf.compat.v1.reset_default_graph()
         
