@@ -18,13 +18,13 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import mkidresonatorkal.tools as mlt
+import mkidmlcalibration.tools as mlt
 import mkidcore.sweepdata as sd
 import shutil
 
 class WPSNeuralNet(object):
     
-    def __init__(self, mlDict, model_name, mlDict_file, plot_destination):
+    def __init__(self, mlDict, model_name, mlDict_file):
         self.mlDict = mlDict
         self.model_name = model_name
         self.mlDict_file = mlDict_file
@@ -252,7 +252,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig(self.plot_destination+'/training_loss.png')
+        plt.savefig(self.model_name+'/training_loss.png')
         
         plt.close()
 
@@ -261,7 +261,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig(self.plot_destination+'/training_accuracy.png')
+        plt.savefig(self.model_name+'/training_accuracy.png')
 
         model.save(self.model_name)
 
