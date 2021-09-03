@@ -26,8 +26,10 @@ import shutil
 
 class WPSNeuralNet(object):
     
-    def __init__(self, mlDict):
+    def __init__(self, mlDict, model_name, mlDict_file):
         self.mlDict = mlDict
+        self.model_name = model_name
+        self.mlDict_file = mlDict_file
         self.nClasses = N_CLASSES
         self.nColors = 2
         if mlDict['useIQV']:
@@ -251,7 +253,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_loss8.png')
+        plt.savefig('/home/msasaki/training_loss2.png')
         
         plt.close()
 
@@ -260,11 +262,11 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_accuracy8.png')
+        plt.savefig('/home/msasaki/training_accuracy2.png')
 
-        model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model8')
+        model.save(model_name)
 
-        return shutil.copyfile('/mnt/c/Users/autum/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model8/mlDict_new.cfg')        
+        return shutil.copyfile(mlDict_file, model_name+'mlDict_new.cfg')        
         
         tf.compat.v1.reset_default_graph()
         
