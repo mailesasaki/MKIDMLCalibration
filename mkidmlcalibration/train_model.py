@@ -10,7 +10,6 @@ import os
 parser = argparse.ArgumentParser(description='ML model trainer')
 parser.add_argument('mlDict', help='yaml file containing mlDict information')
 parser.add_argument('model_name', help='destination + name of ML model folder')
-parser.add_argument('plot_destination', help='destinations of accuracy + loss plots')
 args=parser.parse_args()
 
 if os.path.isfile(args.mlDict) == False:
