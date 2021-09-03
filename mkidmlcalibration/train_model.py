@@ -16,6 +16,7 @@ if os.path.isfile(args.mlDict) == False:
         raise Exception('mlDict file does not exist')
     
 mlDict_file = args.mlDict
+model_name = args.model_name
 mlDict = config.load(mlDict_file)
 
 trial1 = wpsnnmkidkal2.WPSNeuralNet(mlDict)
