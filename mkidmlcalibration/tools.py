@@ -215,7 +215,7 @@ def get_ml_model(modelDir=''):
     new_model = tf.keras.models.load_model(modelDir)
 
     mlDictFile = modelDir + '/mlDict.yml'
-    mlDict = config.load(mlDict_file)
+    mlDict = config.load(mlDictFile)
 
     if 'normalizeBeforeCenter' not in mlDict: #maintain backwards compatibility with old models
         print('Adding key: normalizeBeforeCenter')
