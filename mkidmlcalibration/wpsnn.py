@@ -264,7 +264,7 @@ class WPSNeuralNet(object):
         plt.legend()
         plt.savefig(self.model_name+'/training_accuracy.png')
 
-        return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict_new.cfg')        
+        return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict.yml')        
         
         tf.compat.v1.reset_default_graph()
         
