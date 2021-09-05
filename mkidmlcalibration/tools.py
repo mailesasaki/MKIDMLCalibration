@@ -215,9 +215,8 @@ def makeWPSImage(freqSweep, centerFreq, centerAtten, nFreqs, nAttens, useIQV, us
 def get_ml_model(modelDir=''):
     new_model = tf.keras.models.load_model(modelDir)
 
-    mlDictFile = modelDir + '/mlDict_new.cfg'
-    mlDict = ReadDict()
-    mlDict.readFromFile(mlDictFile)
+    mlDictFile = modelDir + '/mlDict.yml'
+    mlDict = config.load(mlDict_file)
 
     if 'normalizeBeforeCenter' not in mlDict: #maintain backwards compatibility with old models
         print('Adding key: normalizeBeforeCenter')
