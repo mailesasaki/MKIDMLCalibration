@@ -233,3 +233,4 @@ def next_batch(trainImages, trainLabels, batch_size):
     return trainImagesBatch, trainLabelsBatch
 
 
+#d
