@@ -3,8 +3,6 @@ import random
 import tensorflow as tf
 import logging
 import os, sys, glob
-from mkidresonatorkal.python3readdict import ReadDict
-
 
 def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, useIQV, useVectIQV, centerIQV=False, normalizeBeforeCenter=False, randomFreqOffs=False):
     centerFreqList = np.atleast_1d(centerFreqList) #allow number too
