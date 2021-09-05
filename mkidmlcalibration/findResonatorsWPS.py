@@ -19,13 +19,13 @@ import logging
 import matplotlib.pyplot as plt
 import skimage.feature as skf
 import mkidcore.sweepdata as sd
-import mkidmlcalibration.tools as mlt
+import mkidresonatorkal.tools as mlt
 from mkidcore.corelog import getLogger
-from mkidmlcalibration.wpsnn import N_CLASSES
+from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 10
+N_CPU = 8
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
@@ -51,13 +51,19 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if mlDict['useVectIQV']:
         nColors += 2
 
-    chunkSize = 5000#8000*N_CPU
+    chunkSize = 12000#8000*N_CPU
+    #previously 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
-    subChunkSize = 200
+    subChunkSize = 500
+    #previously 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
+        #from multiprocessing import set_start_method
+        #set_start_method("spawn")
+        #from multiprocessing import get_context
+        #pool = get_context('spawn').Pool(processes=N_CPU)
         pool = multiprocessing.Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
@@ -73,6 +79,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                     imageList[i], _, _  = mlt.makeWPSImage(freqSweep, freqs[freqInd], attens[attenInd], mlDict['freqWinSize'],
                             1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], mlDict['useIQV'], mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
+                print('Done with image')
             else:
                 freqList = freqs[list(range(chunkSize*chunkInd, chunkSize*chunkInd + nFreqsInChunk))]
                 toneIndLow = np.argmin(np.abs(freqList[0] - toneWinCenters))
@@ -92,9 +99,15 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             freqWinSize=mlDict['freqWinSize'], attenWinSize=1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], 
                             useIQV=mlDict['useIQV'], useVectIQV=mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
-
+                
+                #process1 = processChunk(freqList[0:10])
+                #print(process1)
+                
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
-                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)//N_CPU)
+                #pool = multiprocessing.Pool(processes=N_CPU)
+                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)//N_CPU))
+                
+                #imageList[:nFreqsInChunk] = pool.map(printfunc, np.arange(len(freqList)), chunksize=len(freqLists)//N_CPU)
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
             
@@ -111,6 +124,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
 
     tf.compat.v1.reset_default_graph()
     
+
     return wpsImage, freqs, attens
                                                       
 def makeImage(centerFreq, freqSweep, atten, freqWinSize, attenWinSize, useIQV, useVectIQV, normalizeBeforeCenter):
@@ -338,6 +352,8 @@ if __name__=='__main__':
 
     elif not os.path.isabs(args.metadata):
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), args.metadata)
+    
+    #set_start_method('spawn')
     
     for (sweepFile, paramDict) in zip(sweepFiles, paramDicts):
         resFreqs, resAttens, scores = runFullInference(sweepFile, args.model, args.peak_thresh, 
