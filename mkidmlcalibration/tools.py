@@ -3,6 +3,7 @@ import random
 import tensorflow as tf
 import logging
 import os, sys, glob
+import mkidcore.config as config
 
 def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, useIQV, useVectIQV, centerIQV=False, normalizeBeforeCenter=False, randomFreqOffs=False):
     centerFreqList = np.atleast_1d(centerFreqList) #allow number too
