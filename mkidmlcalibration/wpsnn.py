@@ -244,6 +244,8 @@ class WPSNeuralNet(object):
         print('Accuracy of model in testing: ', val_accuracy, '%')
         print('Loss of model in testing: ', val_loss, '%')
         
+        model.save(self.model_name)
+        
         Epochs = range(1, len(loss)+1)
         
         plt.plot(Epochs, loss, 'b', label="Training Loss")
@@ -261,8 +263,6 @@ class WPSNeuralNet(object):
         plt.ylabel('Accuracy')
         plt.legend()
         plt.savefig(self.model_name+'/training_accuracy.png')
-
-        model.save(self.model_name)
 
         return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict_new.cfg')        
         
