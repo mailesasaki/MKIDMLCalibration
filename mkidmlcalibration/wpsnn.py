@@ -28,7 +28,6 @@ class WPSNeuralNet(object):
         self.mlDict = mlDict
         self.model_name = model_name
         self.mlDict_file = mlDict_file
-        self.plot_destination = plot_destination
         self.nClasses = N_CLASSES
         self.nColors = 2
         if mlDict['useIQV']:
