@@ -24,9 +24,8 @@ import shutil
 
 class WPSNeuralNet(object):
     
-    def __init__(self, mlDict, model_name, mlDict_file):
+    def __init__(self, mlDict, mlDict_file):
         self.mlDict = mlDict
-        self.model_name = model_name
         self.mlDict_file = mlDict_file
         self.nClasses = N_CLASSES
         self.nColors = 2
@@ -244,7 +243,9 @@ class WPSNeuralNet(object):
         print('Accuracy of model in testing: ', val_accuracy, '%')
         print('Loss of model in testing: ', val_loss, '%')
         
-        model.save(self.model_name)
+        modelSavePath = os.path.join(self.mlDict['modelDir'], self.mlDict['modelName'])
+        model.save(modelSavePath)
+        print('Saving model in', modelSavePath)
         
         Epochs = range(1, len(loss)+1)
         
@@ -253,7 +254,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig(self.model_name+'/training_loss.png')
+        plt.savefig(modelSavePath+'/training_loss.png')
         
         plt.close()
 
@@ -262,9 +263,9 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig(self.model_name+'/training_accuracy.png')
+        plt.savefig(modelSavePath+'/training_accuracy.png')
 
-        return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict.yml')        
+        return shutil.copyfile(self.mlDict_file, modelSavePath+'/mlDict.yml')        
         
         tf.compat.v1.reset_default_graph()
         
