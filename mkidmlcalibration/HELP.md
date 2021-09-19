@@ -3,7 +3,7 @@
 3. scp sweep npz files into the above directory.
 4. $ conda activate mkidcal 
 5. If there's no ml model yet, train a model using: python train_model.py /path/to/mldictfile.yml
-   i. The ML model will have also have graphs of the training and validation accuracy and loss inside.
+   1. The ML model will have also have graphs of the training and validation accuracy and loss inside.
 7. Run ML inference script using: python findResonatorsWPS.py /path/to/mlmodel/fullval_final_1 /path/to/sweep/npz -o /path/to/metadata/output
    i. If your computer doesn't have 8 or more CPUs, you can run it with 1 CPU instead.
    ii. The paths (for sweep npz and metadata out) use format tags {roach}, {feedline}, and {range}, which behave the same way as they do in the templar/dashboard config files
