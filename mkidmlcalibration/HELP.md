@@ -1,5 +1,5 @@
 1. You'll want to double check the mlDict file and make sure that the model directory, name of the ML model, and training file directory are as you like. Also, if you have a trainNPZ file, have the name in there, too.
-2. $ mkdir <trainFileDir> to contain the npz files
+2. $ mkdir "trainFileDir" to contain the npz files
 3. scp sweep npz files into the above directory.
 4. $ conda activate mkidcal 
 5. If there's no ml model yet, train a model using: python train_model.py /path/to/mldictfile.yml
