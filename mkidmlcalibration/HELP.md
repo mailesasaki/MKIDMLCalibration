@@ -5,7 +5,7 @@
 5. If there's no ml model yet, train a model using: python train_model.py /path/to/mldictfile.yml
    1. The ML model will have also have graphs of the training and validation accuracy and loss inside.
 7. Run ML inference script using: python findResonatorsWPS.py /path/to/mlmodel/fullval_final_1 /path/to/sweep/npz -o /path/to/metadata/output
-   1. If your computer doesn't have 8 or more CPUs, you can run it with 1 CPU instead.
+   1. The N_CPU parameter in this script should be configured appropriately; the default N_CPU=8 works well on glados. 
    2. The paths (for sweep npz and metadata out) use format tags {roach}, {feedline}, and {range}, which behave the same way as they do in the templar/dashboard config files
    3. After metadata files are completed we want to look at the histograms of the powers and clip off the lowest attenuations (highest powers). This will increase the dynamic range of the ADC/DAC and improve performance
 7. Navigate to mkidreadout/configuration
